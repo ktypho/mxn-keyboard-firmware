@@ -1,8 +1,17 @@
 #define DEBUG
 
+#include <MsTimer2.h>
+
 //#include <Arduino.h>
 #include <Keyboard.h>
 #include <Mouse.h>
+
+volatile byte enc1c;
+volatile byte enc1p;
+volatile int counter1 = 0;
+
+#define RE_PINA 10
+#define RE_PINB 16
 
 // キーマトリクスの行列数
 #define ROW_NUM 3
@@ -24,6 +33,35 @@ uint8_t current_state[ROW_NUM][COL_NUM];   // キーの現在状態
 uint8_t previous_state[ROW_NUM][COL_NUM];  // キーの前回状態
 
 uint8_t i, j;  // ループ用
+
+void encoder() { //割り込み処理の関数
+  enc1c = (digitalRead(RE_PINA)<<1) | (digitalRead(RE_PINB));
+  if(!(enc1c == enc1p))
+  {
+    byte enc1 = enc1p << 2 | enc1c;
+    if( enc1==0b0001) //0b0001
+    {
+      counter1++;
+    }
+    else if(enc1 == 0b0100)//0b0100
+    {
+      counter1--;
+    }
+    enc1p=enc1c;
+  }
+}
+
+void scanRotaryEncoder () {
+  if (counter1 > 0) {
+    Mouse.move(0, 0, -1);
+    counter1--;
+  }
+  else if (counter1 < 0){
+    Mouse.move(0, 0, 1);
+    counter1++;
+  }
+  delay(1);
+}
 
 void scanKeyMatrix() {
   for (i = 0; i < COL_NUM; i++) {   // 各行について：
@@ -64,10 +102,21 @@ void setup() {
 
   // キーボードのエミュレーション開始
   Keyboard.begin();
+
+  pinMode(RE_PINA, INPUT_PULLUP);
+  pinMode(RE_PINB, INPUT_PULLUP);
+
+  //割り込み処理の設定
+  MsTimer2::set(1, encoder);
+  MsTimer2::start();
+
+  Mouse.begin();
 }
 
 // メインループ
 void loop() {
   // キーマトリクスのスキャン
   scanKeyMatrix();
+  // ロータリーエンコーダのスキャン
+  scanRotaryEncoder();
 }
