@@ -18,10 +18,41 @@ volatile uint8_t enc1c;  // ロータリーエンコーダ現在状態
 volatile uint8_t enc1p;  // ロータリーエンコーダ前回状態
 volatile int8_t counter1 = 0;  // 回転方向カウンタ
 
+// ASCII CODE
+#define KEY_A 0x61
+#define KEY_B 0x62
+#define KEY_C 0x63
+#define KEY_D 0x64
+#define KEY_E 0x65
+#define KEY_F 0x66
+#define KEY_G 0x67
+#define KEY_H 0x68
+#define KEY_I 0x69
+#define KEY_J 0x6a
+#define KEY_K 0x6b
+#define KEY_L 0x6c
+#define KEY_M 0x6d
+#define KEY_N 0x6e
+#define KEY_O 0x6f
+#define KEY_P 0x70
+#define KEY_Q 0x71
+#define KEY_R 0x72
+#define KEY_S 0x73
+#define KEY_T 0x74
+#define KEY_U 0x75
+#define KEY_V 0x76
+#define KEY_W 0x77
+#define KEY_X 0x78
+#define KEY_Y 0x79
+#define KEY_Z 0x7a
+#define KEY_EQUAL 0x3d // =
+#define KEY_MINUS 0x2d // -
+
 // 修飾キー定義
 #define MOD_L_SHIFT 0x01
 #define MOD_L_CTRL  0x02
 #define MOD_L_ALT   0x04
+#define MOD_FUNC1   0x08
 
 // キーコマンド（修飾キー＋キー）
 struct KeyCommand {
@@ -49,9 +80,9 @@ const uint8_t COL_PIN[COL_NUM] = {21, 20, 19, 18};  // 出力
 // キーマップ（修飾キー対応）
 using KC = KeyCommand;
 const KeyCommand KEY_MAP2[ROW_NUM][COL_NUM] = {
-  {KC(0x61),           KC(0x61),             KC(0x63),  KC(KEY_BACKSPACE)},
-  {KC(KEY_LEFT_SHIFT), KC(MOD_L_CTRL, 0x73), KC (0x67), KC(0x68)         },
-  {KC(KEY_LEFT_CTRL),  KC(0x6a),             KC(0x6b),  KC(0x6c)         }
+  {KC(KEY_Q),             KC(KEY_W),             KC(KEY_E),             KC(MOD_L_CTRL, KEY_Y)},
+  {KC(MOD_L_CTRL, KEY_A), KC(MOD_L_CTRL, KEY_S), KC(KEY_LEFT_CTRL),     KC(MOD_L_CTRL, KEY_V)},
+  {KC(MOD_L_CTRL, KEY_Z), KC(MOD_L_CTRL, KEY_X), KC(MOD_L_CTRL, KEY_C), KC(KEY_F)            }
 };
 // キーマップ
 /*
@@ -87,11 +118,20 @@ void encoder() {
 // ロータリーエンコーダの回転方向に応じて操作を実行
 void scanRotaryEncoder () {
   if (counter1 > 0) {      // CWなら
-    Mouse.move(0, 0, -1);  // スクロールダウン
+    //Mouse.move(0, 0, -1);  // スクロールダウン
+    Keyboard.press(KEY_LEFT_CTRL);
+    Keyboard.press(KEY_LEFT_SHIFT);
+    Keyboard.press(KEY_EQUAL);
+    delay(1);
+    Keyboard.releaseAll();
     counter1--;
   }
   else if (counter1 < 0){  // CCWなら
-    Mouse.move(0, 0, 1);   // スクロールアップ
+    //Mouse.move(0, 0, 1);   // スクロールアップ
+    Keyboard.press(KEY_LEFT_CTRL);
+    Keyboard.press(KEY_LEFT_SHIFT);
+    Keyboard.press(KEY_MINUS);
+    Keyboard.releaseAll();
     counter1++;
   }
   delay(1);
