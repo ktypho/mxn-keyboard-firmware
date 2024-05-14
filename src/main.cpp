@@ -45,8 +45,10 @@ volatile int8_t counter1 = 0;  // 回転方向カウンタ
 #define KEY_X 0x78
 #define KEY_Y 0x79
 #define KEY_Z 0x7a
-#define KEY_EQUAL 0x3d // =
-#define KEY_MINUS 0x2d // -
+#define KEY_EQUAL 0x3d  // =
+#define KEY_SQUOTE 0x27 // '
+#define KEY_PLUS  0x2b  // +
+#define KEY_MINUS 0x2d  // -
 
 // 修飾キー定義
 #define MOD_L_SHIFT 0x01
@@ -77,13 +79,32 @@ struct KeyCommand {
 const uint8_t ROW_PIN[ROW_NUM] = {2, 3, 4};         // 入力
 const uint8_t COL_PIN[COL_NUM] = {21, 20, 19, 18};  // 出力
 
+// キーマップ（バンク切り替え対応）
+using KC = KeyCommand;
+const KeyCommand KEY_MAP3[2][ROW_NUM][COL_NUM] = {
+  {
+    {KC(KEY_Q),             KC(KEY_W),             KC(KEY_E),             KC(MOD_L_CTRL, KEY_Y)},
+    {KC(MOD_FUNC1, 0x00),   KC(MOD_L_CTRL, KEY_A), KC(MOD_L_CTRL, KEY_S), KC(MOD_L_CTRL, KEY_V)},
+    {KC(MOD_L_CTRL, KEY_Z), KC(MOD_L_CTRL, KEY_X), KC(MOD_L_CTRL, KEY_C), KC(KEY_F)            }
+  },
+  {
+    {KC(KEY_Q),             KC(KEY_W),             KC(KEY_MINUS),             KC(KEY_SQUOTE)           },
+    {KC(MOD_FUNC1, 0x00),   KC(MOD_L_CTRL, KEY_A), KC(MOD_L_CTRL, KEY_MINUS), KC(MOD_L_CTRL, KEY_V)    },
+    {KC(MOD_L_CTRL, KEY_Z), KC(MOD_L_CTRL, KEY_X), KC(MOD_L_CTRL, KEY_C),     KC(MOD_L_CTRL, KEY_EQUAL)}
+  }
+};
+uint8_t bank = 0;
+
 // キーマップ（修飾キー対応）
+/*
 using KC = KeyCommand;
 const KeyCommand KEY_MAP2[ROW_NUM][COL_NUM] = {
   {KC(KEY_Q),             KC(KEY_W),             KC(KEY_E),             KC(MOD_L_CTRL, KEY_Y)},
-  {KC(MOD_L_CTRL, KEY_A), KC(MOD_L_CTRL, KEY_S), KC(KEY_LEFT_CTRL),     KC(MOD_L_CTRL, KEY_V)},
+  {KC(MOD_FUNC1, 0x00),   KC(MOD_L_CTRL, KEY_A), KC(MOD_L_CTRL, KEY_S), KC(MOD_L_CTRL, KEY_V)},
   {KC(MOD_L_CTRL, KEY_Z), KC(MOD_L_CTRL, KEY_X), KC(MOD_L_CTRL, KEY_C), KC(KEY_F)            }
 };
+*/
+
 // キーマップ
 /*
 const uint8_t KEY_MAP[ROW_NUM][COL_NUM] = {
@@ -146,28 +167,38 @@ void scanKeyMatrix() {
       current_state[j][i] = digitalRead(ROW_PIN[j]);  //   現在状態を確認
       if (current_state[j][i] != previous_state[j][i]) {   // 前回状態と異なるかつ、
         if (current_state[j][i] == LOW) {                  // 現在状態 = LOW（スイッチ押下）なら：
-          if ((KEY_MAP2[j][i].mod & MOD_L_SHIFT) == MOD_L_SHIFT) {
+          if ((KEY_MAP3[bank][j][i].mod & MOD_L_SHIFT) == MOD_L_SHIFT) {
               Keyboard.press(KEY_LEFT_SHIFT);  // LEFT SHIFT
           }
-          if ((KEY_MAP2[j][i].mod & MOD_L_CTRL) == MOD_L_CTRL) {
+          if ((KEY_MAP3[bank][j][i].mod & MOD_L_CTRL) == MOD_L_CTRL) {
               Keyboard.press(KEY_LEFT_CTRL);   // LEFT CTRL
           }
-          if ((KEY_MAP2[j][i].mod & MOD_L_SHIFT) == MOD_L_ALT) {
+          if ((KEY_MAP3[bank][j][i].mod & MOD_L_SHIFT) == MOD_L_ALT) {
               Keyboard.press(KEY_LEFT_ALT);    // LEFT ALT
           }
-          Keyboard.press(KEY_MAP2[j][i].key);                   //   当該キーを press
+          if ((KEY_MAP3[bank][j][i].mod & MOD_FUNC1) == MOD_FUNC1) {
+            bank = 1;
+          }
+          else {
+            Keyboard.press(KEY_MAP3[bank][j][i].key);                 //   当該キーを press
+          }
         }
         else {                                            // 現在状態 = HIGH（スイッチオフ）なら： 
-          if ((KEY_MAP2[j][i].mod & MOD_L_SHIFT) == MOD_L_SHIFT) {
+          if ((KEY_MAP3[bank][j][i].mod & MOD_L_SHIFT) == MOD_L_SHIFT) {
               Keyboard.release(KEY_LEFT_SHIFT);  // LEFT SHIFT
           }
-          if ((KEY_MAP2[j][i].mod & MOD_L_CTRL) == MOD_L_CTRL) {
+          if ((KEY_MAP3[bank][j][i].mod & MOD_L_CTRL) == MOD_L_CTRL) {
               Keyboard.release(KEY_LEFT_CTRL);   // LEFT CTRL
           }
-          if ((KEY_MAP2[j][i].mod & MOD_L_SHIFT) == MOD_L_ALT) {
+          if ((KEY_MAP3[bank][j][i].mod & MOD_L_SHIFT) == MOD_L_ALT) {
               Keyboard.release(KEY_LEFT_ALT);    // LEFT ALT
           }
-          Keyboard.release(KEY_MAP2[j][i].key);                 //   当該キーを release
+          if ((KEY_MAP3[bank][j][i].mod & MOD_FUNC1) == MOD_FUNC1) {
+            bank = 0;
+          }
+          else {
+            Keyboard.release(KEY_MAP3[bank][j][i].key);                 //   当該キーを release
+          }
         }
 
         previous_state[j][i] = current_state[j][i];  // 前回状態を更新
