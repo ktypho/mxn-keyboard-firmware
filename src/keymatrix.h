@@ -46,6 +46,10 @@ struct KeyCommand {
 
   KeyCommand(uint8_t main_key);
   KeyCommand(uint8_t modifier_key, uint8_t main_key);
+
+  void press() const; // press key
+  void release() const; // release key
+  void write() const; // press and release key
 };
 
 // Key Matrix
