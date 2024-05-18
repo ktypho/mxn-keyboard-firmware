@@ -19,17 +19,16 @@ const uint8_t COL_PIN[COL_NUM] = {21, 20, 19, 18};  // 出力
 
 // キーマップ（バンク切り替え対応）
 using KC = KeyCommand;
-
 const KeyCommand KEY_MAP3[BANK_NUM * ROW_NUM * COL_NUM] = {
     // default map (bank0)
-    KC(KEY_Q),             KC(KEY_W),             KC(KEY_E),             KC(MOD_L_CTRL, KEY_Y),
-    KC(MOD_FUNC1, 0x00),   KC(MOD_L_CTRL, KEY_A), KC(MOD_L_CTRL, KEY_S), KC(KEY_SPACE),
+    KC(KEY_Q),             KC(KEY_W),                  KC(KEY_E),                 KC(MOD_L_CTRL, KEY_Y),
+    KC(MOD_FUNC1, 0x00),   KC(KEY_LEFT_ALT),           KC(MOD_L_CTRL, KEY_S),     KC(KEY_SPACE),
     KC(MOD_L_CTRL, KEY_Z), KC(MOD_L_SHIFT, KEY_SPACE), KC(MOD_L_CTRL, KEY_SPACE), KC(KEY_F),
 
     // map with FUNC1 (bank1)
     KC(KEY_Q),             KC(KEY_W),             KC(KEY_MINUS),             KC(KEY_SQUOTE),
     KC(MOD_FUNC1, 0x00),   KC(MOD_L_CTRL, KEY_A), KC(MOD_L_CTRL, KEY_MINUS), KC(MOD_L_CTRL, KEY_V),
-    KC(MOD_L_CTRL, KEY_Z), KC(MOD_L_CTRL, KEY_X), KC(MOD_L_CTRL, KEY_C), KC(MOD_L_CTRL, KEY_EQUAL)
+    KC(MOD_L_CTRL, KEY_Z), KC(MOD_L_CTRL, KEY_X), KC(MOD_L_CTRL, KEY_C),     KC(MOD_L_CTRL, KEY_EQUAL)
 };
 
 KeyMatrix km(KEY_MAP3, ROW_PIN, COL_PIN, ROW_NUM, COL_NUM);

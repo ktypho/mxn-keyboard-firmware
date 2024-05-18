@@ -58,10 +58,10 @@ struct KeyMatrix {
 
     uint8_t *cur_state; // current state (HIGH/LOW)
     uint8_t *pre_state; // purevious state (HIGH/LOW)
-    uint8_t bank;
+    uint8_t bank; // current bank
 
     KeyMatrix(const KeyCommand *key_matrix, const uint8_t *row_pin, const uint8_t *col_pin, uint8_t rows, uint8_t cols);
-    void init();  // initialize
-    void scan();  // scan and push/release keys
+    void init(); // initialize
+    void scan(); // scan and push/release keys
 
 };

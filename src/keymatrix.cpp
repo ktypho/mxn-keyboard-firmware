@@ -13,20 +13,26 @@ KeyCommand::KeyCommand(uint8_t modifier_key, uint8_t main_key) {
 KeyMatrix::KeyMatrix(const KeyCommand *key_matrix, const uint8_t *row_pin, const uint8_t *col_pin, uint8_t nrows, uint8_t ncols)
     : km(key_matrix), row_pin(row_pin), col_pin(col_pin), rows(nrows), cols(ncols)
 {
+    // memory allocation
     cur_state = new uint8_t[rows * cols];
     pre_state = new uint8_t[rows * cols];
-    
+
+    // deffault map
     bank = 0;
 };
 
+// initialize
 void KeyMatrix::init() {
+    // set INPUT/OUTPUT to pins
     for (uint8_t i = 0; i < rows; i++) pinMode(row_pin[i], INPUT_PULLUP);
     for (uint8_t i = 0; i < cols; i++) pinMode(col_pin[i], OUTPUT);
 
+    // set HIGH to state
     memset(cur_state, HIGH, sizeof(*cur_state));
     memset(pre_state, HIGH, sizeof(*pre_state));
     
-  Keyboard.begin();
+    // start keyboard emulation
+    Keyboard.begin();
 }
 
 // km[bank][j][i] = km[(bank * rows * cols) + (j * cols) + i]
@@ -41,16 +47,16 @@ void KeyMatrix::scan() {
             cur_state[j * cols + i] = digitalRead(row_pin[j]);  // read input pin
         
             if (cur_state[j * cols + i] != pre_state[j * cols + i]) {
-                if (cur_state[j * cols + i] == LOW) {  // if HIGH -> LOW (released -> pushed)
+                if (cur_state[j * cols + i] == LOW) { // if HIGH -> LOW (released -> pushed)
                     // push modifier keys
                     if ((km[(bank * rows * cols) + (j * cols) + i].mod & MOD_L_SHIFT) == MOD_L_SHIFT) {
-                        Keyboard.press(KEY_LEFT_SHIFT);  // LEFT SHIFT
+                        Keyboard.press(KEY_LEFT_SHIFT); // LEFT SHIFT
                     }
                     if ((km[(bank * rows * cols) + (j * cols) + i].mod & MOD_L_CTRL) == MOD_L_CTRL) {
-                        Keyboard.press(KEY_LEFT_CTRL);   // LEFT CTRL
+                        Keyboard.press(KEY_LEFT_CTRL); // LEFT CTRL
                     }
                     if ((km[(bank * rows * cols) + (j * cols) + i].mod & MOD_L_SHIFT) == MOD_L_ALT) {
-                        Keyboard.press(KEY_LEFT_ALT);    // LEFT ALT
+                        Keyboard.press(KEY_LEFT_ALT); // LEFT ALT
                     }
 
                     // push main key
@@ -66,13 +72,13 @@ void KeyMatrix::scan() {
                 else {  // if LOW -> HIGH (pushed -> released)
                     // release modifier keys
                     if ((km[(bank * rows * cols) + (j * cols) + i].mod & MOD_L_SHIFT) == MOD_L_SHIFT) {
-                        Keyboard.release(KEY_LEFT_SHIFT);  // LEFT SHIFT
+                        Keyboard.release(KEY_LEFT_SHIFT); // LEFT SHIFT
                     }
                     if ((km[(bank * rows * cols) + (j * cols) + i].mod & MOD_L_CTRL) == MOD_L_CTRL) {
-                        Keyboard.release(KEY_LEFT_CTRL);   // LEFT CTRL
+                        Keyboard.release(KEY_LEFT_CTRL); // LEFT CTRL
                     }
                     if ((km[(bank * rows * cols) + (j * cols) + i].mod & MOD_L_SHIFT) == MOD_L_ALT) {
-                        Keyboard.release(KEY_LEFT_ALT);    // LEFT ALT
+                        Keyboard.release(KEY_LEFT_ALT); // LEFT ALT
                     }
 
                     // release main key
