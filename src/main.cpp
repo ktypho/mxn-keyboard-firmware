@@ -42,12 +42,16 @@ volatile uint8_t enc1c;  // ロータリーエンコーダ現在状態
 volatile uint8_t enc1p;  // ロータリーエンコーダ前回状態
 volatile int8_t counter1 = 0;  // 回転方向カウンタ
 
+// ロータリーエンコーダを回した時のキーコマンド
+KeyCommand brush_size_plus(MOD_L_CTRL | MOD_L_SHIFT, KEY_EQUAL);
+KeyCommand brush_size_minus(MOD_L_CTRL | MOD_L_SHIFT, KEY_MINUS);
+
 // ロータリーエンコーダ読み込み
 void encoder() {
   enc1c = (digitalRead(RE_PINA)<<1) | (digitalRead(RE_PINB));  // ピン状態
-  if(!(enc1c == enc1p)) {  // 前回状態から変化しているとき
+  if(enc1c != enc1p) {  // 前回状態から変化しているとき
     uint8_t enc1 = enc1p << 2 | enc1c;
-    if( enc1==0b0001) {
+    if( enc1 == 0b0001) {
       counter1++;
     }
     else if(enc1 == 0b0100) {
@@ -61,19 +65,12 @@ void encoder() {
 void scanRotaryEncoder () {
   if (counter1 > 0) {      // CWなら
     //Mouse.move(0, 0, -1);  // スクロールダウン
-    Keyboard.press(KEY_LEFT_CTRL);
-    Keyboard.press(KEY_LEFT_SHIFT);
-    Keyboard.press(KEY_EQUAL);
-    delay(1);
-    Keyboard.releaseAll();
+    brush_size_plus.write();  // CTRL + SHIFT + =
     counter1--;
   }
   else if (counter1 < 0){  // CCWなら
     //Mouse.move(0, 0, 1);   // スクロールアップ
-    Keyboard.press(KEY_LEFT_CTRL);
-    Keyboard.press(KEY_LEFT_SHIFT);
-    Keyboard.press(KEY_MINUS);
-    Keyboard.releaseAll();
+    brush_size_minus.write();  // CTRL + SHIFT + -
     counter1++;
   }
   delay(1);

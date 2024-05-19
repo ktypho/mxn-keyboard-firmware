@@ -67,5 +67,4 @@ struct KeyMatrix {
     KeyMatrix(const KeyCommand *key_matrix, const uint8_t *row_pin, const uint8_t *col_pin, uint8_t rows, uint8_t cols);
     void init(); // initialize
     void scan(); // scan and push/release keys
-
 };

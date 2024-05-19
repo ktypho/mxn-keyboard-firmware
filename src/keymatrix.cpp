@@ -22,8 +22,10 @@ void KeyCommand::press() const {
         Keyboard.press(KEY_LEFT_ALT); // LEFT ALT
     }
 
-    // push main key
-    Keyboard.press(key);
+    // press main key
+    if (key != 0x00) {
+        Keyboard.press(key);
+    }
 };
 void KeyCommand::release() const {
     // release modifier keys
@@ -38,7 +40,9 @@ void KeyCommand::release() const {
     }
 
     // release main key
-    Keyboard.release(key);
+    if (key != 0x00) {
+        Keyboard.release(key);
+    }
 };
 void KeyCommand::write() const {
     press();
